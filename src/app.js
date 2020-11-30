@@ -4,7 +4,10 @@ const exphbs =require ('express-handlebars');
 const path = require('path');
 const handlebars = require('handlebars');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
-
+const flash = require('connect-flash');
+const session=require('express-session');
+const MySQLStore=require('express-mysql-session');
+const {database}=require('./keys');
 
 //initializations
 const app = express();
@@ -24,13 +27,21 @@ app.set('view engine','.hbs');
 
 
 //middlewares
+app.use(session({
+    secret:'DanMySql',
+    resave:false,
+    saveUninitialized:false,
+    store: new MySQLStore(database)
+}))
+app.use(flash());
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
 
+
 //Global variables
 app.use((req,res,next)=>{
-
+    app.locals.success= req.flash('success');
     next();
 });
 
